@@ -22,7 +22,7 @@ services:
       dockerfile: Dockerfile
     container_name: backend
     ports:
-      - "3001:3000"
+      - "3001:3001"
     depends_on:
       - db
     environment:
@@ -31,8 +31,6 @@ services:
       - DATABASE_USER=postgres
       - DATABASE_PASSWORD=postgres
       - DATABASE_NAME=mydatabase
-    volumes:
-      - ./backend:/app
     networks:
       - app-network
 
