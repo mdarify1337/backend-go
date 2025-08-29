@@ -1,3 +1,21 @@
 
 ########## TEST BACKEND ##########
 GET  http://localhost:3001/ping
+
+############ CREATE USER ##########
+
+POST http://localhost:3001/CreateUser
+Content-Type: application/json
+
+{
+  "username": "jdoe",
+  "email": "jdoe@example.com",
+  "password": "supersecret123",
+  "first_name": "John",
+  "last_name": "Doe",
+  "created_at": "2025-08-29T12:34:56Z",
+  "updated_at": "2025-08-29T12:34:56Z",
+  "picture": "https://example.com/avatars/jdoe.png"
+}
+
+

@@ -17,6 +17,9 @@ clean: down remove
 
 re: down up
 
+logs:
+	docker compose -f docker-compose.yml logs -f
+
 docker-clean:
 	docker stop $$(docker ps -q)
 	docker rm $$(docker ps -aq)
