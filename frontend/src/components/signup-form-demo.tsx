@@ -1,0 +1,245 @@
+"use client";
+
+import React from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+
+const signupSchema = z
+    .object({
+        username: z.string().min(3, "Username must be at least 3 characters"),
+        email: z.string().email("Invalid email address"),
+        password: z.string().min(6, "Password must be at least 6 characters"),
+        confirm_password: z.string().min(6, "Please confirm your password"),
+        first_name: z.string().min(1, "First name is required"),
+        last_name: z.string().min(1, "Last name is required"),
+        picture: z.string().url("Must be a valid URL").optional(),
+    })
+    .refine((data) => data.password === data.confirm_password, {
+        message: "Passwords do not match",
+        path: ["confirm_password"],
+    });
+
+type SignupFormValues = z.infer<typeof signupSchema>;
+
+export default function SignupFormDemo() {
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+    } = useForm<SignupFormValues>({
+        resolver: zodResolver(signupSchema),
+    });
+
+    const onSubmit = async (data: SignupFormValues) => {
+        const { confirm_password, ...payload } = data;
+
+        const body = {
+            ...payload,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+        };
+
+        console.log("Submitting body : ==> ", body);
+
+        try {
+            const res = await fetch("http://localhost:3001/CreateUser", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body),
+            });
+
+            if (!res.ok) throw new Error("Failed to create user");
+            const responseData = await res.json();
+            console.log("✅ User created:", responseData);
+            alert("User created successfully!");
+        } catch (err) {
+            console.error("❌ Error creating user:", err);
+            alert("Error creating user");
+        }
+    };
+
+    return (
+        <div className="shadow-input mx-auto w-full max-w-md rounded-none bg-white p-4 md:rounded-2xl md:p-8 dark:bg-zinc-900 dark:border dark:border-zinc-800">
+            <h2 className="text-xl font-bold text-neutral-800 dark:text-neutral-100">
+                Create your account
+            </h2>
+            <p className="mt-2 max-w-sm text-sm text-neutral-600 dark:text-neutral-400">
+                Fill in your details to sign up
+            </p>
+
+            <form className="my-8" onSubmit={handleSubmit(onSubmit)}>
+                {/* Username */}
+                <LabelInputContainer className="mb-4">
+                    <Label
+                        htmlFor="username"
+                        className="text-neutral-700 dark:text-neutral-200"
+                    >
+                        Username
+                    </Label>
+                    <Input
+                        id="username"
+                        placeholder="jdoe"
+                        {...register("username")}
+                        className="dark:bg-zinc-800 dark:text-neutral-100 dark:border-zinc-700"
+                    />
+                    {errors.username && (
+                        <p className="text-red-400 text-sm">{errors.username.message}</p>
+                    )}
+                </LabelInputContainer>
+
+                {/* First + Last Name */}
+                <div className="mb-4 flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2">
+                    <LabelInputContainer>
+                        <Label
+                            htmlFor="first_name"
+                            className="text-neutral-700 dark:text-neutral-200"
+                        >
+                            First name
+                        </Label>
+                        <Input
+                            id="first_name"
+                            placeholder="John"
+                            {...register("first_name")}
+                            className="dark:bg-zinc-800 dark:text-neutral-100 dark:border-zinc-700"
+                        />
+                        {errors.first_name && (
+                            <p className="text-red-400 text-sm">
+                                {errors.first_name.message}
+                            </p>
+                        )}
+                    </LabelInputContainer>
+                    <LabelInputContainer>
+                        <Label
+                            htmlFor="last_name"
+                            className="text-neutral-700 dark:text-neutral-200"
+                        >
+                            Last name
+                        </Label>
+                        <Input
+                            id="last_name"
+                            placeholder="Doe"
+                            {...register("last_name")}
+                            className="dark:bg-zinc-800 dark:text-neutral-100 dark:border-zinc-700"
+                        />
+                        {errors.last_name && (
+                            <p className="text-red-400 text-sm">{errors.last_name.message}</p>
+                        )}
+                    </LabelInputContainer>
+                </div>
+
+                {/* Email */}
+                <LabelInputContainer className="mb-4">
+                    <Label
+                        htmlFor="email"
+                        className="text-neutral-700 dark:text-neutral-200"
+                    >
+                        Email Address
+                    </Label>
+                    <Input
+                        id="email"
+                        type="email"
+                        placeholder="jdoe@example.com"
+                        {...register("email")}
+                        className="dark:bg-zinc-800 dark:text-neutral-100 dark:border-zinc-700"
+                    />
+                    {errors.email && (
+                        <p className="text-red-400 text-sm">{errors.email.message}</p>
+                    )}
+                </LabelInputContainer>
+
+                {/* Password */}
+                <LabelInputContainer className="mb-4">
+                    <Label
+                        htmlFor="password"
+                        className="text-neutral-700 dark:text-neutral-200"
+                    >
+                        Password
+                    </Label>
+                    <Input
+                        id="password"
+                        type="password"
+                        placeholder="••••••••"
+                        {...register("password")}
+                        className="dark:bg-zinc-800 dark:text-neutral-100 dark:border-zinc-700"
+                    />
+                    {errors.password && (
+                        <p className="text-red-400 text-sm">{errors.password.message}</p>
+                    )}
+                </LabelInputContainer>
+
+                {/* Confirm Password */}
+                <LabelInputContainer className="mb-4">
+                    <Label
+                        htmlFor="confirm_password"
+                        className="text-neutral-700 dark:text-neutral-200"
+                    >
+                        Confirm Password
+                    </Label>
+                    <Input
+                        id="confirm_password"
+                        type="password"
+                        placeholder="••••••••"
+                        {...register("confirm_password")}
+                        className="dark:bg-zinc-800 dark:text-neutral-100 dark:border-zinc-700"
+                    />
+                    {errors.confirm_password && (
+                        <p className="text-red-400 text-sm">
+                            {errors.confirm_password.message}
+                        </p>
+                    )}
+                </LabelInputContainer>
+
+                {/* Picture (optional) */}
+                <LabelInputContainer className="mb-8">
+                    <Label
+                        htmlFor="picture"
+                        className="text-neutral-700 dark:text-neutral-200"
+                    >
+                        Profile picture URL
+                    </Label>
+                    <Input
+                        id="picture"
+                        placeholder="https://example.com/avatar.png"
+                        {...register("picture")}
+                        className="dark:bg-zinc-800 dark:text-neutral-100 dark:border-zinc-700"
+                    />
+                    {errors.picture && (
+                        <p className="text-red-400 text-sm">{errors.picture.message}</p>
+                    )}
+                </LabelInputContainer>
+
+                <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="group/btn relative block h-10 w-full rounded-md bg-gradient-to-br from-black to-neutral-700 font-medium text-white shadow-md dark:from-zinc-800 dark:to-zinc-900"
+                >
+                    {isSubmitting ? "Signing up..." : "Sign up →"}
+                    <BottomGradient />
+                </button>
+            </form>
+        </div>
+    );
+}
+
+const BottomGradient = () => (
+    <>
+        <span className="absolute inset-x-0 -bottom-px block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/btn:opacity-100" />
+        <span className="absolute inset-x-10 -bottom-px mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-0 blur-sm transition duration-500 group-hover/btn:opacity-100" />
+    </>
+);
+
+const LabelInputContainer = ({
+    children,
+    className,
+}: {
+    children: React.ReactNode;
+    className?: string;
+}) => (
+    <div className={cn("flex w-full flex-col space-y-2", className)}>
+        {children}
+    </div>
+);

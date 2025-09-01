@@ -19,3 +19,11 @@ Content-Type: application/json
 }
 
 
+################# LOGIN USER #################
+POST http://localhost:3001/SignInUser
+Content-Type: application/json
+
+{
+  "Username": "mdarify@gmail.com",
+  "Password": "darify1337@"
+}

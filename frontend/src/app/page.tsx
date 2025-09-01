@@ -1,4 +1,5 @@
 import Image from "next/image";
+import SignupFormDemo from "@/components/signup-form-demo";
 
 export default function Home() {
   return (
